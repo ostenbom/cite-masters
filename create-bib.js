@@ -94,13 +94,27 @@ function orderCitationsByReferences(citations, references) {
   return orderedCitations
 }
 
+function outputCitationsToFile(citations) {
+  bibliography = '';
+  for (let citeNo in citations) {
+    let cite = citations[citeNo]
+    let index = parseInt(citeNo) + 1
+    bibliography += '[' + index + '][' + cite.name + '] ' + cite.ieee + '\n'
+  }
+
+  fs.writeFile('bibliography.txt', bibliography, (err) => {
+    if (err) throw err
+    console.log('Bibliography saved to bibliography.txt')
+  })
+}
+
 function createBib(fullText, bibtexCitations) {
   citations = createCitationDict(bibtexCitations)
   citations = createIeeeCitations(citations)
-
   referenceOrder = getReferenceOrder(fullText)
-
   citations = orderCitationsByReferences(citations, referenceOrder)
+
+  outputCitationsToFile(citations)
 }
 
 var report = ''
