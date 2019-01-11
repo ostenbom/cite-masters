@@ -21,8 +21,8 @@ function createCitationDict(citations) {
       entries.push(currentEntry)
       currentEntry = blankEntry()
     } else {
-      if (currentLine.includes('note=')) {
-        let noteIdRegex = /.*note=\{ID: ([-\w]+?)\}.*/
+      if (/.*note.*=.*/.test(currentLine)) {
+        let noteIdRegex = /.*note.*=.*\{ID: ([-\w]+?)\}.*/
         let found = currentLine.match(noteIdRegex)
         currentEntry.name = found[1]
       }
@@ -95,12 +95,23 @@ function orderCitationsByReferences(citations, references) {
 }
 
 function outputCitationsToFile(citations) {
-  bibliography = '';
+  bibliography = ''
+  citePairs = []
   for (let citeNo in citations) {
     let cite = citations[citeNo]
     let index = parseInt(citeNo) + 1
-    bibliography += '[' + index + '][' + cite.name + '] ' + cite.ieee + '\n'
+    pair = {
+      number: index,
+      name: cite.name
+    }
+    citePairs.push(pair)
+    bibliography += '[' + cite.name + '] ' + cite.ieee + '\n'
   }
+
+  fs.writeFile('pairs.json', JSON.stringify(citePairs), (err) => {
+    if (err) throw err
+    console.log('Pairs saved to pairs.json')
+  })
 
   fs.writeFile('bibliography.txt', bibliography, (err) => {
     if (err) throw err
